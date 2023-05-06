@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Electron Music Player</title>
+    <style>
+      header {
+        -webkit-app-region: drag;
+      }
+      header input {
+        -webkit-app-region: none;
+      }
+      #playlistbox {
+        cursor: pointer;
+      }
+      .content {
+        height: calc(100vh - 60px);
+      }
+    </style>
+  </head>
+  <body>
+    <header style="height: 60px" class="bg-red-500 relative">
+      <input type="text" value="3" class="outline-none text-gray-50 px-2.5 h-8 absolute z-50 top-4 left-60 rounded-full bg-gray-900 bg-opacity-10">
+    </header>
+    <div class="content flex flex-col pt-6 pl-6 pr-6">
+      <div class="flex-1">
+        <div id="playlist">
+          <h4 class="pb-2 text-xl font-semibold">歌曲列表</h4>
+          <ul id="playlistbox">
+            <!-- <li data-src="./path/to/1.mp3">Song 1</li>
+            <li data-src="path/to/2.mp3">Song 2</li> -->
+          </ul>
+        </div>
+      </div>
+      <div class="controls-box p-4  flex justify-between items-center border-t border-gray-100">
+        <div class="current-player">
+          <span class="player-name">你好歌曲</span>
+        </div>
+        <audio controls>  
+          <source src="" type="audio/mpeg">  
+          Your browser does not support the audio element.  
+        </audio>
+        <div class="volume">
+          喇叭
+        </div>
+      </div>
+    </div>
+    <!-- <div id="controls">
+      <button id="play-btn">Play</button>
+      <button id="pause-btn">Pause</button>
+    </div> -->
+    <!-- <script src="renderer.js"></script> -->
+  </body>
+</html>
