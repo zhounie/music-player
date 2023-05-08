@@ -24,8 +24,10 @@ module.exports = {
       name: '@electron-forge/plugin-webpack',
       config: {
         mainConfig: './webpack.main.config.js',
+        devContentSecurityPolicy: "connect-src 'self' * 'unsafe-eval'",
         renderer: {
           config: './webpack.renderer.config.js',
+          nodeIntegration: true,
           entryPoints: [
             {
               html: './src/index.html',

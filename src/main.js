@@ -7,6 +7,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 const createWindow = () => {
+  require('@electron/remote/main').initialize()
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     titleBarStyle: 'hidden',
@@ -23,6 +24,8 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      enableRemoteModule: true,
+      webSecurity: false
     },
   });
 
@@ -31,6 +34,8 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+  
+  require("@electron/remote/main").enable(mainWindow.webContents)
 };
 
 // This method will be called when Electron has finished
