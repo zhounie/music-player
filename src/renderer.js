@@ -1,8 +1,12 @@
 // const { ipcRenderer } = require('electron')
 import { dialog } from '@electron/remote'
 import './index.css';
-import path from 'path'
+import path, { resolve } from 'path'
 import fs from 'fs'
+import { parseBuffer } from 'music-metadata'
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+dayjs.extend(duration)
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -25,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const historyList = JSON.parse(localStorage.getItem('historyList') || '[]')
   if (historyList.length) {
     historylistbox.innerHTML = historyList.map((item, index) => {
-      const bgcss = index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
+      const bgcss = index % 2 === 0 ? 'bg-gray-100' : 'bg-transparent'
       return `<li
                 class="${bgcss} hover:bg-gray-200 cursor-pointer p-1.5 pl-4 truncate" data-index="${index}"
                 data-src="${item}"
@@ -101,9 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
 
-  playlist.addEventListener('dblclick', (event) => {
-    const src = event.target.getAttribute('data-src');
-    const index = event.target.getAttribute('data-index');
+  playlistbox.addEventListener('dblclick', (event) => {
+    const src = event.target.parentElement.getAttribute('data-src');
+    const index = event.target.parentElement.getAttribute('data-index');
     if (src) {
       // currentMp3Name.innerText = src.match(/[^\\/]*$/)[0];
       currentIndex = index
@@ -157,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     for(let i = 0; i< playlistbox.children.length; i++) {
       if (playlistbox.children[i].getAttribute('data-src') === src) {
-        playlistbox.children[i].children[0].innerHTML = `<i class="iconfont icon-laba text-red-500"></i>`
+        playlistbox.children[i].children[0].innerHTML = `<i class="iconfont icon-laba text-indigo-500"></i>`
       } else {
         playlistbox.children[i].children[0].innerHTML = `${+playlistbox.children[i].getAttribute('data-index') + 1}.`
       }
@@ -180,18 +184,36 @@ document.addEventListener('DOMContentLoaded', () => {
     dialog.showOpenDialog({
       properties: ['openFile', 'openDirectory']
     }).then((result) => {
-      console.log(result.canceled);
-      console.log(result.filePaths);
-      fs.readdir(result.filePaths[0], (err, rawFiles) => {
-        openFileBtn2.style = 'display: block'
+      const dirPath = result.filePaths[0]
+      fs.readdir(dirPath, async (err, rawFiles) => {
         if (err) {
           console.log(err);
         } else {
-          const files = rawFiles.filter(item => {
-            return item.includes('.mp3')
+          openFileBtn2.style = 'display: block'
+          const files = rawFiles.filter(item => item.includes('.mp3'))
+
+          const listResult = files.map(async(item) => {
+            const filePath = path.resolve(dirPath, item)
+            let meta = {}
+            const fileBuffer = fs.readFileSync(filePath)
+            const fileInfo = fs.statSync(filePath)
+            console.log(fileInfo);
+            meta = await parseBuffer(fileBuffer, {mimeType: 'audio/mpeg', size: fileInfo.size}, {duration: true})
+            console.log(meta);
+            const { common, format } = meta
+            return {
+              title: common.title,
+              artist: common.artist,
+              album: common.album,
+              duration: format.duration,
+              size: fileInfo.size,
+              path: filePath
+            }
           })
-          musicList = files.map(item => path.resolve(result.filePaths[0], item))
-          setList(result.filePaths[0])
+          Promise.all(listResult).then(list => {
+            musicList = list
+            setList()
+          })
         }
       })
     }).catch((err) => {
@@ -205,15 +227,19 @@ document.addEventListener('DOMContentLoaded', () => {
       openFileBtn2.style = 'display: none'
     }
     playlistbox.innerHTML = musicList.map((item, index) => {
-      const bgcss = index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
-      return `<li
-                class="${bgcss} hover:bg-gray-200 p-1.5" data-index="${index}"
-                data-src="${item}"
+      const bgcss = index % 2 === 0 ? 'bg-gray-50' : 'bg-transparent'
+      return `<tr
+                class="${bgcss} hover:bg-gray-200 rounded-md font-light"
+                data-src="${item.path}"
                 data-index="${index}"
               >
-                  <span>${index+1}.</span>
-                  <span>${item.match(/[^\\/]*$/)[0]}</span>
-              </li>`
+                <td class="py-4"><span>${index+1}.</span></td>
+                <td class="py-4"><span>${item.title}.</span></td>
+                <td class="py-4 text-gray-400"><span>${item.artist}.</span></td>
+                <td class="py-4 text-gray-400"><span>${item.album}.</span></td>
+                <td class="py-4 text-gray-400"><span>${dayjs.duration(item.duration, 's').asMinutes().toFixed(2)}</span></td>
+                <td class="py-4 text-gray-400"><span>${(item.size / 1024 / 1024).toFixed(2)}MB</span></td>
+              </tr>`
     }).join('')
   }
   

@@ -17,43 +17,59 @@
       .content {
         height: calc(100vh - 60px);
       }
+      .content-box {
+        background: url('./assets/img/bg.png') no-repeat right 125% / 60%;
+      }
+      
     </style>
   </head>
   <body>
-    <header style="height: 60px" class="bg-red-500 relative">
-      <button id="openFileBtn">打开文件</button>
-      <input type="text" value="3" class="outline-none text-gray-50 px-2.5 h-8 absolute z-50 top-4 left-60 rounded-full bg-gray-900 bg-opacity-10">
+    <header style="height: 60px" class="bg-indigo-400 relative flex pl-6">
+      <button id="openFileBtn" class="text-white">打开文件夹</button>
+      <!-- <input type="text" value="3" class="outline-none text-gray-50 px-2.5 h-8 absolute z-50 top-4 left-60 rounded-full bg-gray-900 bg-opacity-10"> -->
     </header>
     <div class="content flex flex-col">
-      <div class="flex-1 relative pt-6 pl-6 pr-6 overflow-hidden">
+      <div class="content-box flex-1 relative pt-6 pl-6 pr-6 overflow-hidden">
         <div id="playlist">
           <h4 class="pb-2 text-xl font-semibold">歌曲列表</h4>
-          <ul id="playlistbox">
+          <table class="select-none w-full">
             <!-- <li data-src="./path/to/1.mp3">Song 1</li>
             <li data-src="path/to/2.mp3">Song 2</li> -->
-          </ul>
+            <thead>
+              <tr class="font-normal">
+                <td class="py-4"></td>
+                <td class="py-4 text-gray-600">歌曲</td>
+                <td class="py-4 text-gray-600">艺人</td>
+                <td class="py-4 text-gray-600">专辑</td>
+                <td class="py-4 text-gray-600">时长</td>
+                <td class="py-4 text-gray-600">大小</td>
+              </tr>
+            </thead>
+            <tbody id="playlistbox">
+            </tbody>
+          </table>
           <button id="openFileBtn2" class="w-40 h-14 bg-red-500 hover:bg-red-700 rounded-lg text-white text-lg shadow-lg">请选择文件</button>
         </div>
         <div
           id="historyList"
-          style="display: block;"
+          style="display: none;"
           class="absolute right-0 top-0 bg-white shadow-lg w-48 h-full pt-6">
           <h4 class="pb-2 pl-4 text-xl font-semibold">历史播放</h4>
-          <ul id="historylistbox">
+          <ul id="historylistbox" class="select-none">
           </ul>
         </div>
       </div>
       <div class="controls-box p-4 border-t border-gray-100 grid grid-cols-4">
         <div class="current-player flex items-center">
-          <span id="currentMp3Name" class="player-name">暂无播放</span>
+          <span id="currentMp3Name" class="player-name font-light">暂无播放</span>
         </div>
         <div class="flex items-center justify-center gap-x-4 col-span-2">
           <div class="cursor-pointer">
-            <i id="playStatus" class="iconfont icon-liebiaoxunhuan hover:text-red-500"></i>
+            <i id="playStatus" class="iconfont icon-liebiaoxunhuan hover:text-indigo-500"></i>
           </div>
           <div class="flex gap-x-2">
-            <i id="pre" class="cursor-pointer iconfont icon-shangyishou hover:text-red-500"></i>
-            <i id="next" class="cursor-pointer iconfont icon-xiayishou hover:text-red-500"></i>
+            <i id="pre" class="cursor-pointer iconfont icon-shangyishou hover:text-indigo-500"></i>
+            <i id="next" class="cursor-pointer iconfont icon-xiayishou hover:text-indigo-500"></i>
           </div>
           <audio controls autoplay>  
             <source src="" type="audio/mpeg">  
@@ -61,7 +77,7 @@
           </audio>
         </div>
         <div class="volume flex justify-end items-center">
-          <i id="menuBtn" class="cursor-pointer text-xl iconfont icon-gedan hover:text-red-500"></i>
+          <i id="menuBtn" class="cursor-pointer text-xl iconfont icon-gedan hover:text-indigo-500"></i>
         </div>
       </div>
     </div>
