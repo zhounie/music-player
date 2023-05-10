@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const playStatus = document.getElementById('playStatus')
   const playlist = document.getElementById('playlist');
   const playlistbox = document.getElementById('playlistbox');
-  const openFileBtn2 = document.getElementById('openFileBtn2')
+  const welcom = document.getElementById('welcom')
   const openFileBtn = document.getElementById('openFileBtn')
   const playBtn = document.getElementById('play-btn');
   const pauseBtn = document.getElementById('pause-btn');
@@ -27,18 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 播放历史记录
   const historyList = JSON.parse(localStorage.getItem('historyList') || '[]')
-  if (historyList.length) {
-    historylistbox.innerHTML = historyList.map((item, index) => {
-      const bgcss = index % 2 === 0 ? 'bg-gray-100' : 'bg-transparent'
-      return `<li
-                class="${bgcss} hover:bg-gray-200 cursor-pointer p-1.5 pl-4 truncate" data-index="${index}"
-                data-src="${item}"
-                data-index="${index}"
-              >
-                  <span>${item.match(/[^\\/]*$/)[0]}</span>
-              </li>`
-    }).join('')
-  }
+  // if (historyList.length) {
+  //   historylistbox.innerHTML = historyList.map((item, index) => {
+  //     const bgcss = index % 2 === 0 ? 'bg-gray-100' : 'bg-transparent'
+  //     return `<li
+  //               class="${bgcss} hover:bg-gray-200 cursor-pointer p-1.5 pl-4 truncate" data-index="${index}"
+  //               data-src="${item}"
+  //               data-index="${index}"
+  //             >
+  //                 <span>${item.match(/[^\\/]*$/)[0]}</span>
+  //             </li>`
+  //   }).join('')
+  // }
   
 
   menuBtn.addEventListener('click', () => {
@@ -134,13 +134,15 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 
   nextDom?.addEventListener('click', () => {
-    let src = getNextSrc()
+    let src = getNextSrc(true)
     play(src)
   })
 
-  function getNextSrc () {
+  function getNextSrc (isNext) {
     let index = currentIndex
-    if (state === 1) {
+    if (isNext) {
+      index = (musicList.length + currentIndex + 1) % musicList.length
+    } else if (state === 1) {
       index = currentIndex
     } else if (state === 2) {
       index = currentIndex
@@ -148,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
       index = (musicList.length + currentIndex + 1) % musicList.length
     }
     currentIndex = index
-    return musicList[index]
+    return musicList[index].path
   }
 
   function getPreSrc () {
@@ -170,10 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (audio) {
       audio.pause();
     }
-    if (!historyList.includes(src)) {
-      historyList.unshift(src)
-      localStorage.setItem('historyList', JSON.stringify(historyList))
-    }
 
     audio = document.createElement('audio');  
     audio.src = src  
@@ -189,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (err) {
           console.log(err);
         } else {
-          openFileBtn2.style = 'display: block'
+          welcom.style = 'display: block'
           const files = rawFiles.filter(item => item.includes('.mp3'))
 
           const listResult = files.map(async(item) => {
@@ -201,7 +199,18 @@ document.addEventListener('DOMContentLoaded', () => {
             meta = await parseBuffer(fileBuffer, {mimeType: 'audio/mpeg', size: fileInfo.size}, {duration: true})
             console.log(meta);
             const { common, format } = meta
+
+            let picture = ''
+            if (Array.isArray(common.picture) && common.picture.length) {
+              const buffer = common.picture[0].data
+              // const type = common.picture[0].format
+              const base64 = Buffer.from(buffer).toString('base64');
+              // const blob = new Blob([buffer], { type: type }); // or the appropriate MIME type for the image format
+              picture = `data:image/jpeg;base64,${base64}`
+            }
+
             return {
+              picture: picture,
               title: common.title,
               artist: common.artist,
               album: common.album,
@@ -212,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
           })
           Promise.all(listResult).then(list => {
             musicList = list
+            localStorage.setItem('historyList', JSON.stringify(musicList))
             setList()
           })
         }
@@ -224,27 +234,29 @@ document.addEventListener('DOMContentLoaded', () => {
   // 设置播放列表
   function setList () {
     if (musicList.length) {
-      openFileBtn2.style = 'display: none'
+      welcom.style = 'display: none'
     }
     playlistbox.innerHTML = musicList.map((item, index) => {
       const bgcss = index % 2 === 0 ? 'bg-gray-50' : 'bg-transparent'
       return `<tr
-                class="${bgcss} hover:bg-gray-200 rounded-md font-light"
+                class="${bgcss} hover:bg-gray-200 font-light"
                 data-src="${item.path}"
                 data-index="${index}"
               >
-                <td class="py-4"><span>${index+1}.</span></td>
-                <td class="py-4"><span>${item.title}.</span></td>
+                <td class="py-4 pl-4 rounded-l-md"><span>${index+1}.</span></td>
+                <td class="py-4 flex items-center space-x-2">
+                  <img class="w-10 h-10 object-cover" src="${item.picture || './assets/img/bg.png'}" />
+                  <span>${item.title}.</span>
+                </td>
                 <td class="py-4 text-gray-400"><span>${item.artist}.</span></td>
                 <td class="py-4 text-gray-400"><span>${item.album}.</span></td>
                 <td class="py-4 text-gray-400"><span>${dayjs.duration(item.duration, 's').asMinutes().toFixed(2)}</span></td>
-                <td class="py-4 text-gray-400"><span>${(item.size / 1024 / 1024).toFixed(2)}MB</span></td>
+                <td class="py-4 text-gray-400 rounded-r-md"><span>${(item.size / 1024 / 1024).toFixed(2)}MB</span></td>
               </tr>`
     }).join('')
   }
   
   openFileBtn.addEventListener('click', openFile)
-  openFileBtn2.addEventListener('click', openFile)
   
 });
 

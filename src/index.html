@@ -18,17 +18,20 @@
         height: calc(100vh - 60px);
       }
       .content-box {
-        background: url('./assets/img/bg.png') no-repeat right 125% / 60%;
+        /* background: url('./assets/img/bg.png') no-repeat right 125% / 60%; */
       }
       
     </style>
   </head>
   <body>
-    <header style="height: 60px" class="bg-indigo-400 relative flex pl-6">
-      <button id="openFileBtn" class="text-white">打开文件夹</button>
+    <header style="height: 60px" class="relative flex pl-6 items-center">
+      <button
+        id="openFileBtn"
+        class="h-8 text-gray-800 text-sm border border-gray-400 hover:bg-gray-200 px-2 rounded shadow"
+      >打开文件夹</button>
       <!-- <input type="text" value="3" class="outline-none text-gray-50 px-2.5 h-8 absolute z-50 top-4 left-60 rounded-full bg-gray-900 bg-opacity-10"> -->
     </header>
-    <div class="content flex flex-col">
+    <div class="content flex flex-col border-t">
       <div class="content-box flex-1 relative pt-6 pl-6 pr-6 overflow-hidden">
         <div id="playlist">
           <h4 class="pb-2 text-xl font-semibold">歌曲列表</h4>
@@ -48,7 +51,8 @@
             <tbody id="playlistbox">
             </tbody>
           </table>
-          <button id="openFileBtn2" class="w-40 h-14 bg-red-500 hover:bg-red-700 rounded-lg text-white text-lg shadow-lg">请选择文件</button>
+          <img id="welcom" class="w-2/4 mx-auto" src="./assets/img/welcom.png" />
+          <!-- <button id="openFileBtn2" class="w-40 h-14 bg-red-500 hover:bg-red-700 rounded-lg text-white text-lg shadow-lg">请选择文件</button> -->
         </div>
         <div
           id="historyList"
